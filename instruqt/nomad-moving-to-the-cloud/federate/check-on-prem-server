@@ -1,0 +1,11 @@
+#!/bin/bash -l
+
+set -e
+
+grep -q "consul join -wan on-prem-server cloud-server" /root/.bash_history || fail-message "You haven't federated the Consul clusters yet."
+
+grep -q "nomad server join cloud-server:4648" /root/.bash_history || fail-message "You haven't federated the Nomad clusters yet."
+
+grep -q "curl http://cloud-server:8500/v1/query" /root/.bash_history || fail-message "You haven't setup the prepared query yet."
+
+exit 0

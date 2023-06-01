@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+# Added to make sure the resolver has picked up the Consul domain.
+systemctl restart systemd-resolved
+
+exit 0

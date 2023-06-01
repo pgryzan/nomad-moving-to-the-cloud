@@ -1,0 +1,461 @@
+slug: nomad-moving-to-the-cloud
+id: vb0y5m1cjjrg
+version: 0.0.1
+type: track
+title: 'Nomad: Moving to the Cloud'
+teaser: Deploy and Manage Any Application on Any Infrastructure with Ease
+description: |-
+  Nomad is a simple, flexible, and production-grade workload orchestrator that enables organizations to deploy, manage, and scale any application, containerized, legacy or batch jobs, across multiple regions, on private and public clouds.
+
+  Experience how easy it is to move native workloads to the cloud with better security, reliability and scaling capabilities.
+
+  In this track you'll spin up a Nomad Enterprise cluster and move multi-os native application and containerized workloads out to the cloud.
+icon: https://storage.googleapis.com/instruqt-hashicorp-tracks/logo/nomad.png
+level: intermediate
+tags:
+- nomad,vault,consul,hashistack,integration,windows,linux
+owner: hashicorp
+developers:
+- pgryzan@hashicorp.com
+private: true
+published: true
+challenges:
+- slug: verify
+  id: ycpegvnmq6pe
+  type: challenge
+  title: Verify
+  teaser: Verify the Health of the On Premise Nomad Enterprise Cluster
+  assignment: |-
+    In this challenge, you will verify the health of your on premise Nomad Enterprise cluster that has been deployed for you by the track's setup scripts. This will include checking the health of a Consul cluster that has been set up on the same VMs.
+
+    It may take a few minutes extra for the environement to complete setup. If you do not see the proper response after running the commands below, it may mean that nodes are still spinning up. Just wait a minute or two and and try again.
+
+    First, verify that all 3 Consul agents are running and connected to the cluster by running this command on the **CLI** tab:
+    ```
+    consul members
+    ```
+    You should see 3 Consul agents. One for the server, one for the Windows client and one for the Podman client.
+
+    Check that the Nomad server is running by running this command on the **CLI** tab:
+    ```
+    nomad server members
+    ```
+    You should see 1 Nomad server.
+
+    Check the status of the Nomad client nodes by running this command on the **CLI** tab:
+    ```
+    nomad node status
+    ```
+    You should see 2 Nomad clients.
+
+    In the next challenge, you will deploy your current legacy application on new infrastructure.
+  notes:
+  - type: text
+    contents: |-
+      In this challenge, we will be spinning up an on premise Nomad Enterprise cluster that has 1 Nomad / Consul Server, 1 Windows Client and 1 Podman Client. You will need to verify that all of the nodes have been spun up before you proceed. This may take a few minutes so please patient.
+
+      Click on the arrow to the right see a diagram of the physical architecture.
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png
+  tabs:
+  - title: CLI
+    type: terminal
+    hostname: on-prem-server
+  - title: Nomad
+    type: service
+    hostname: on-prem-server
+    port: 4646
+  - title: Consul
+    type: service
+    hostname: on-prem-server
+    port: 8500
+  difficulty: basic
+  timelimit: 600
+- slug: redeploy
+  id: itpnrhgaznrb
+  type: challenge
+  title: Redeploy
+  teaser: Redeploy the Existing Legacy Application
+  assignment: "In this challenge, you will redoloy your legacy application on the
+    new HashiCorp infrastructure. The database has been put into a Windows container
+    and the Legacy application will be deployed directly to IIS. \n\nThere are two
+    job specifications created for you located on the **Files** tab. The **product-db.hcl**
+    will deploy the database and the **legacy-app.hcl** will deploy the application
+    that uses the database. \n\nThe legacy-app is using the win_iis task driver developed
+    by Roblox. See their Nomad story here - [Nomad Case Study](https://www.hashicorp.com/case-studies/roblox)\n\nFirst,
+    deploy the database by running the following command in **CLI** tab:\n```\nnomad
+    job run product-db.hcl\n```\n<pre style=\"font-size:0.6em\">\nYou should see an
+    output that looks something like this:\n==> Monitoring evaluation \"23e32ff7\"\n
+    \   Evaluation triggered by job \"product-db\"\n==> Monitoring evaluation \"23e32ff7\"\n
+    \   Evaluation within deployment: \"f361a755\"\n    Allocation \"85d4ee21\" created:
+    node \"0d071a57\", group \"product-db\"\n    Evaluation status changed: \"pending\"
+    -> \"complete\"\n==> Evaluation \"23e32ff7\" finished with status \"complete\"\n</pre>\n\nYou
+    can take a look at how the job is progressing by clicking on the the **Nomad**
+    tab. Click on the **product-db** under in the middle of the screen to watch the
+    deployment progress.\n\nLet's deploy the legacy application by running the following
+    command on the **CLI** tab:\n```\nnomad job run legacy-app.hcl\n```\nAgain, you
+    should see something that looks like this:\n<pre style=\"font-size:0.6em\">\n==>
+    Monitoring evaluation \"86e223bf\"\n    Evaluation triggered by job \"legacy-app\"\n==>
+    Monitoring evaluation \"86e223bf\"\n    Evaluation within deployment: \"21ad2b98\"\n
+    \   Allocation \"cb695561\" created: node \"0d071a57\", group \"legacy-app\"\n
+    \   Evaluation status changed: \"pending\" -> \"complete\"\n==> Evaluation \"86e223bf\"
+    finished with status \"complete\"\n</pre>\n\nConfirm that your application is
+    healthy by viewing it on the **Nomad** tab.\n\nFinally, click on the **Legacy
+    Application** tab to view the deployed legacy application stack. It may take a
+    moment to retrieve some of the data because IIS is spinning threads up.\n\nIn
+    the next challenge, you will provision your new HashiCorp cloud infrastructure."
+  notes:
+  - type: text
+    contents: |-
+      In this challenge, we are going to prepare to move our existing application to the cloud.
+
+      The newly deployed legacy application is a simple two tier ASP.NET / SQL Server stack that only runs and is accessed on premise. The database has been containerized and the legacy application will run natively on IIS.
+
+      Click on the arrow to the right to see a diagram of the deployed application architecture.
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png?pageid=g9b2ed6f585_3_0
+  tabs:
+  - title: Files
+    type: code
+    hostname: on-prem-server
+    path: /root/jobs/
+  - title: CLI
+    type: terminal
+    hostname: on-prem-server
+  - title: Nomad
+    type: service
+    hostname: on-prem-server
+    port: 4646
+  - title: Consul
+    type: service
+    hostname: on-prem-server
+    port: 8500
+  - title: Legacy Application
+    type: service
+    hostname: on-prem-windows
+    port: 8080
+  difficulty: basic
+  timelimit: 600
+- slug: provision
+  id: p1bxrcosu83p
+  type: challenge
+  title: Provision
+  teaser: Provision and Verify the Cloud Environment
+  assignment: |-
+    In this challenge, you will verify the health of your cloud Nomad Enterprise cluster that has been deployed for you by the track's setup scripts. This will include checking the health of a Consul cluster that has been set up on the same VMs.
+
+    First, verify that 4 Consul agents are running and connected to the cluster by running this command on the **CLI** tab:
+    ```
+    consul members
+    ```
+    You should see 4 Consul agents. One for the server and three for the clients.
+
+    Check that the Nomad server is running by running this command on the **CLI** tab:
+    ```
+    nomad server members
+    ```
+    You should see 1 Nomad server.
+
+    Check the status of the Nomad client nodes by running this command on the **CLI** tab:
+    ```
+    nomad node status
+    ```
+    You should see 3 Nomad clients.
+
+    In the next challenge, you federate the on-prem and cloud datacenters.
+  notes:
+  - type: text
+    contents: |-
+      Next let's take a look at the future state application architecture.
+
+      The application uses the existing on-prem SQL Server database and deploys out to the cloud in a more consumable service approach. We are going to be adding a payment api to allow people to purchase via the web or a mobile device.
+
+      Notice that each service of the application is owned by a different team, hence different deployment stacks. In addition, the product and payment apis are not containerized and can only be deployed in thier native format.
+
+      Click on the arrow to the right to take a look at the future state architecture.
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png?pageid=g9b51024e7e_0_15
+  tabs:
+  - title: CLI
+    type: terminal
+    hostname: cloud-server
+  - title: Nomad
+    type: service
+    hostname: cloud-server
+    port: 4646
+  - title: Consul
+    type: service
+    hostname: cloud-server
+    port: 8500
+  difficulty: basic
+  timelimit: 600
+- slug: federate
+  id: ofybs0svizwp
+  type: challenge
+  title: Federate
+  teaser: Federate the On Premise and Cloud Data Centers
+  assignment: |-
+    In this challenge you are going to federate the two data centers and setup a Prepared Query, which will access the on-prem database.
+
+    First, let's federate Consul to get the name resolution across data centers / regions. Run the command on the **CLI** tab:
+    ```
+    consul join -wan on-prem-server cloud-server
+    ```
+    You should see, "Successfully joined cluster by contacting 2 nodes."
+
+    Next, federate the on-prem and cloud Nomad clusters by running the following command on the **CLI** tab:
+    ```
+    nomad server join cloud-server:4648
+    ```
+    You should see, "Joined 1 servers successfully".
+
+    Refresh both Consul and Nomad tabs. Notice in the upper left hand corner of the screen a new selectory appears to choose either a datacenter for Consul or, a region for Nomad. Now you can look at everything in one pane of glass!
+
+    Finally, we need to tell Consul how to connect the api to the database.
+
+    Normally you would put a database name into the connection string and that looks something like this:
+    <pre style="font-size:0.9em">
+    product-db.service.east.consul
+    </pre>
+
+    However, we want to build some flexibility into the selection of the database across datacenters automatically so we'll using something called a **[Prepared Query](https://learn.hashicorp.com/tutorials/consul/automate-geo-failover)**. A prepared query will automatically fail over to the next geo-located datacenter and look for the database until it finds one or fails.
+
+    A connection string database name using a Prepared Query would look like:
+    <pre style="font-size:0.9em">
+    product-db.query.consul
+    </pre>
+
+    Run the following command on the **CLI** tab to setup the prepared query:
+    ```
+    curl http://cloud-server:8500/v1/query \
+    --request POST \
+    --data @- << EOF
+    {
+      "Name": "product-db",
+      "Service": {
+        "Service": "product-db",
+        "Failover": {
+          "NearestN": 2
+        }
+      }
+    }
+    EOF
+    ```
+    The response will look something like
+    <pre style="font-size:0.9em">
+    {"ID":"6bda9263-f6d4-b8d1-96dc-778917ee2bd1"}
+    </pre>
+
+    In the next challenge, you will integrate the product and payment APIs into the system.
+  notes:
+  - type: text
+    contents: |-
+      In order for our future state application architecture to function correctly, we need to allow the datacenters to work together. We call this **"[Federation](https://learn.hashicorp.com/tutorials/nomad/federation)"** because both systems will be considered peers and share workload information. Datacenters can be federated across different zones, regions and clouds.
+
+      After federating the two datacenters, we will setup a Prepared Query to tie the product-api back the on-prem database.
+
+      Click on the arrow to the right to take a look at how they will comminicate with each other.
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png?pageid=gd834c02dab_0_48
+  tabs:
+  - title: CLI
+    type: terminal
+    hostname: on-prem-server
+  - title: Nomad
+    type: service
+    hostname: on-prem-server
+    port: 4646
+  - title: Consul
+    type: service
+    hostname: on-prem-server
+    port: 8500
+  difficulty: basic
+  timelimit: 600
+- slug: integrate
+  id: vdmaoiyhfas0
+  type: challenge
+  title: Integrate
+  teaser: Integrate the Product and Payment APIs Into the System
+  assignment: |-
+    In this challenge, you are going to integrate the product and payment APIs into the system. The payment API will be deployed using a multi-region strategy, because we want to have it available on premise and in the cloud.
+
+    Let start by looking at the **product-api.hcl** job in the **Files** viewer. Again, we will be using the win_iis task driver developed by Roblox.
+
+    Also notice that we are deploying from the on-prem datacenter to the cloud datacenter by specifying the region and datacenter at the top.
+
+    Run the following command on the **CLI** tab to deploy the product-api:
+    ```
+    nomad job run product-api.hcl
+    ```
+    You should see a confirmation that it was deployed. Go over to the **Nomad** tab and watch it become healthy.
+
+    Go to the **Product API** tab. If it's blank, click the refresh icon in the upper righthand corner. This may take a moment because IIS is spinning up threads. You should see a bunch of JSON describing different coffees pulled from the products database on-prem.
+
+    Lets take a look at the **payment-api.hcl** file located on the **Files** tab.
+
+    The job will be deployed to both regions. The **max_parallel** field of the **strategy** block of the **multiregion** block restricts Nomad to deploy to the regions one at a time since it is set to **1**. If either of the region deployments fail, both regions will be marked as **failed** since **on_failure** is set to **fail_all**.
+
+    The job will deploy to the regions in the the order that they have been defined in the job specification file. Since in this case, **max_parallel** is set to **1**, the job will be deployed to the **west** region before it is deployed to the **east** region regardless of whether the job is started from the on-prem server or the cloud server.
+
+    The count of each task group that has **count = 0** is set to the value of the **count** attribute specified for that task group's region in the **multiregion** block.
+
+    The job's **update** block uses the default **task_states** value of the **health_check** attribute to determine if the job is healthy; if you configured a Consul service with health checks you could use that instead.
+
+    Run the following commands on the **CLI** tab.
+
+    Let's deploy the job by running:
+    ```
+    nomad job run payment-api.hcl
+    ```
+    This should return something like this:
+    <pre style="font-size:0.9em">
+    Job registration successful
+    Evaluation ID: f8b386d8-ab92-4932-7e9f-1c67403f70ee
+    </pre>
+
+    Immediately watch the job status in the west region with the following command on the **CLI** tab:
+    ```
+    watch nomad job status -region west payment-api
+    ```
+
+    Please focus your attention on the **Multiregion Deployment** section of the output which will change as the deployment proceeds. The west region should initially have the **running** status and the east region should have the **pending** status in that section. Within 30 seconds, you should see an allocation in the west region at the bottom of the output. About 10 seconds after that allocation enters the **running** state, the status for the west region will transition to **blocked** and the east region's status will change to **running**. Once the east region's deployment has completed, both regions will transition to the **successful** status. Here is an example of what this looks like during this process:
+
+    First you will see something like this:
+
+    Multiregion Deployment
+    <pre style="font-size:0.9em">
+    Region  ID        Status
+    east    dcd0957d  pending
+    west    88b4cdf9  running
+    </pre>
+
+    Then you will see something like this:
+    <pre style="font-size:0.9em">
+    Multiregion Deployment
+    Region  ID        Status
+    east    dcd0957d  running
+    west    88b4cdf9  blocked
+    </pre>
+
+    Finally, you will see something like this:
+    <pre style="font-size:0.9em">
+    Multiregion Deployment
+    Region  ID        Status
+    east    dcd0957d  successful
+    west    88b4cdf9  successful
+    </pre>
+
+    Type ` <control\>-c ` on a Mac or ` <ctrl\>-c ` on Windows to terminate the **watch** command.
+
+    Finally, double-check that an allocation has been run in the east region by running this command on the **CLI** tab:
+    ```
+    nomad job status -region east payment-api
+    ```
+    You should see an allocation for the east region in the **Allocations** section at the bottom of the screen.
+
+    Finally confirm that the payment-api is working by running the following command on the **CLI** tab:
+    ```
+    curl -s -X POST --header "Content-Type: application/json" --data '{"name": "Gerry", "type": "mastercard", "number": "1234-1234-1234-1234", "expiry": "01/23", "cvc": "123"}' payment-api.service.consul:8080
+
+    ```
+    You should get a message like this:
+    <pre style="font-size:0.9em">
+    {"card_plaintext":"1234-1234-1234-1234","card_ciphertext":"Encryption Disabled","message":"Payment processed successfully, card details returned for demo purposes, not for production","id":"c4fe569e-c50c-430b-baee-6831a5d7be50"}
+    </pre>
+    In the next challenge, you will deploy the new HashiCups application to the cloud datacenter.
+  notes:
+  - type: text
+    contents: |-
+      In this challenge, we will be deploying the Product and Payment APIs. The Product API will be deployed only to the to the cloud datacenter. The Payment API is a native Java application that will be deployed across multiple regions.
+
+      Click on the arrow to the right to see the focus areas.
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png?pageid=gd834c02dab_0_204
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png?pageid=gd834c02dab_0_238
+  tabs:
+  - title: Files
+    type: code
+    hostname: on-prem-server
+    path: /root/jobs/
+  - title: CLI
+    type: terminal
+    hostname: on-prem-server
+  - title: Nomad
+    type: service
+    hostname: on-prem-server
+    port: 4646
+  - title: Consul
+    type: service
+    hostname: on-prem-server
+    port: 8500
+  - title: Product API
+    type: service
+    hostname: cloud-windows
+    path: /coffees
+    port: 9090
+  difficulty: basic
+  timelimit: 600
+- slug: deploy
+  id: m2o5ywlj4ya2
+  type: challenge
+  title: Deploy
+  teaser: Deploy the HashiCups Single Page Application (SPA)
+  assignment: |-
+    In this challenge, were going to deploy the public API which is a containerized GraphQL endpoint and an Nginx application server for the GUI.
+
+    Lets start by deploying te public-api using the following command on the **CLI** tab:
+    ```
+    nomad job run public-api.hcl
+    ```
+
+    Click on the **Nomad** tab to see it deploy in real time. In addition, click on the "Topology" menu item to the left and inside the Nomad tab. At the top you can select the region and see that we have deployed to three different types of platforms.
+
+    The challenge to deploying the Nginx container is it's not able to resove named services in the Consul namespace, so we are going to configure Nomad to inject those addresses into the configuration through templating.
+
+    Select the **Files** tab and open the **frontend.hcl** file. Most of this looks like a normal containerized deployment, but in the middle we are using Nomad templating to grab the endpoint addresses for the public-api service dynamically and write them into the Nginx configuration.
+
+    Run the job with the following command on the **CLI** tab:
+    ```
+    nomad job run frontend.hcl
+    ```
+
+    After you confirm that the job was indeed deployed and is healthy on the **Nomad** tab, select the **HashiCups** tab to see the outcome of all your hard work. You can also confirm that we didn't interupt the **Legacy Application** service.
+
+    Congratulations! It took a short amount of time to move and deploy a simple application to the cloud using existing and native technologies.
+  notes:
+  - type: text
+    contents: |-
+      In this challenge, were going to deploy containerized versions the public-api GraphQL endpoint and an Nginx application server for the GUI.
+
+      Click on the arrow to the right to see the focus areas.
+  - type: image
+    url: https://docs.google.com/presentation/d/1F9IxmCIMlYGDBWmVHjPdp9vqglGaeApc0bHpgm2N2gU/export/png?pageid=gd834c02dab_0_272
+  tabs:
+  - title: Files
+    type: code
+    hostname: on-prem-server
+    path: /root/jobs/
+  - title: CLI
+    type: terminal
+    hostname: on-prem-server
+  - title: Nomad
+    type: service
+    hostname: on-prem-server
+    port: 4646
+  - title: Consul
+    type: service
+    hostname: on-prem-server
+    port: 8500
+  - title: Legacy Application
+    type: service
+    hostname: on-prem-windows
+    port: 8080
+  - title: HashiCups
+    type: service
+    hostname: cloud-docker
+    path: /
+    port: 80
+  difficulty: basic
+  timelimit: 600
+checksum: "4819382263126843554"

@@ -1,0 +1,27 @@
+#!/bin/bash -l
+
+set -e
+
+#Enable bash history
+HISTFILE=~/.bash_history
+set -o history
+
+consul join -wan on-prem-server cloud-server
+
+nomad server join cloud-server:4648
+
+curl http://cloud-server:8500/v1/query \
+    --request POST \
+    --data @- << EOF
+{
+    "Name": "product-db",
+    "Service": {
+        "Service": "product-db",
+        "Failover": {
+            "NearestN": 2
+        }
+    }
+}
+EOF
+
+exit 0

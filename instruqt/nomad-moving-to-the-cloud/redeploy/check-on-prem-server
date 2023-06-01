@@ -1,0 +1,9 @@
+#!/bin/bash -l
+
+set -e
+
+grep -q "nomad job run product-db.hcl" /root/.bash_history || fail-message "You haven't deployed the database yet."
+
+grep -q "nomad job run legacy-app.hcl" /root/.bash_history || fail-message "You haven't deployed the legacy application yet."
+
+exit 0

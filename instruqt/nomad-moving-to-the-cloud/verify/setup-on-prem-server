@@ -1,0 +1,61 @@
+#!/bin/bash -l
+
+set -e
+
+touch ~/.bash_profile
+
+# Set Local Script Variables
+REGION=east
+DATACENTER=on-prem
+CONSUL=
+NOMAD=
+VAULT=
+
+# Get User Root Files
+git clone https://github.com/hashicorp/field-demos-nomad-land-team-footloose-wanderers-assets.git /tmp/repo
+sudo mv /tmp/repo/jobs/ ~/
+sudo rm -r /tmp/repo
+
+# Set SSHPASS Password
+export SSHPASS=Passw0rd!
+echo -e "export SSHPASS=Passw0rd!" >> /root/.bashrc
+echo -e "export SSHPASS=Passw0rd!" >> ~/.bash_profile
+
+# Get Server IP
+export MY_IP=$(ip addr show ens4 | grep -Po 'inet \K[\d.]+')
+echo -e "export ON_PREM_SERVER_IP=$MY_IP" >> /root/.bashrc
+echo -e "export ON_PREM_SERVER_IP=$MY_IP" >> ~/.bash_profile
+
+# Configure the Server
+echo "Setting Up Server"
+sudo chmod +x /home/hashistack/config.sh
+sudo /home/hashistack/config.sh -r "$REGION" -d "$DATACENTER" -c "$CONSUL" -n "$NOMAD" -v "$VAULT" -x 'on-prem-server' -q '"10.64.0.254", "169.254.169.254", "8.8.8.8", "8.8.4.4"'
+sudo rm -r /home/hashistack/config.sh
+
+# Configure Podman
+echo "Setting Up Podman"
+ssh -o StrictHostKeyChecking=no on-prem-podman << ENDSSH
+sudo chmod +x /home/hashistack/config.sh
+sudo /home/hashistack/config.sh -r "$REGION" -d "$DATACENTER" -j "$MY_IP" -x 'on-prem-podman' -q '"10.64.0.254"' 
+sudo rm -r /home/hashistack/config.sh
+ENDSSH
+
+# Get the Windows Client IP
+IFS=' ' read -r -a array <<< "$(gcloud compute instances list | grep p-$INSTRUQT_PARTICIPANT_ID-on-prem-windows)"
+export ON_PREM_WINDOWS_IP="${array[3]}"
+ssh-keyscan -H $ON_PREM_WINDOWS_IP >> ~/.ssh/known_hosts
+echo -e "export ON_PREM_WINDOWS_IP=$ON_PREM_WINDOWS_IP" >> /root/.bashrc
+echo -e "export ON_PREM_WINDOWS_IP=$ON_PREM_WINDOWS_IP" >> ~/.bash_profile
+
+# Configure Windows Client
+sshpass -e ssh -o stricthostkeychecking=no hashistack@$ON_PREM_WINDOWS_IP << ENDSSH
+powershell.exe -ExecutionPolicy Bypass
+c:/users/hashistack/config.ps1 -r "$REGION" -d "$DATACENTER" -j "$MY_IP" -x "on-prem-windows" -q '"10.64.0.254"'
+rm c:/users/hashistack/config.ps1
+exit
+ENDSSH
+
+# Set the Terminal Directory
+echo -e "cd /root/jobs" >> ~/.bash_profile
+
+exit 0

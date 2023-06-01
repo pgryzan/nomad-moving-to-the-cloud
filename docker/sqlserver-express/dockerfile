@@ -1,0 +1,40 @@
+####################################################################################
+#
+#   file:           /docker/sqlserver-express/dockerfile
+#   author:         Patrick Gryzan
+#   date:           April 2021
+#   description:    Dockerfile for a containerized implementation of SQL Server Express 2019.
+#                   We are using base version mcr.microsoft.com/windows/servercore:10.0.17763.1817
+#                   because it matches the windows-cloud/windows-2019-for-containers on GCP
+#
+####################################################################################
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+LABEL author="Patrick Gryzan <pgryzan@hashicorp.io>"
+LABEL description="This is a containerized implementation of SQL Server Express 2019"
+
+ENV sa_password="_" \
+    attach_dbs="[]" \
+    sa_password_path="C:\ProgramData\Docker\secrets\sa-password"
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# create an initialization folder for sql startup scripts
+RUN mkdir -p /initdb.d
+
+# make install files accessible
+COPY start.ps1 /
+WORKDIR /
+
+ADD https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SQLEXPR_x64_ENU.exe sqlexpress.exe
+
+RUN Start-Process -Wait -FilePath .\sqlexpress.exe -ArgumentList /qs, /x:setup ; \
+    .\setup\setup.exe /q /ACTION=Install /INSTANCENAME=SQLEXPRESS /FEATURES=SQLEngine /UPDATEENABLED=0 /SQLSVCACCOUNT='NT AUTHORITY\System' /SQLSYSADMINACCOUNTS='BUILTIN\ADMINISTRATORS' /TCPENABLED=1 /NPENABLED=0 /IACCEPTSQLSERVERLICENSETERMS ; \
+    Remove-Item -Recurse -Force sqlexpress.exe, setup
+
+RUN stop-service MSSQL`$SQLEXPRESS ; \
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql15.SQLEXPRESS\mssqlserver\supersocketnetlib\tcp\ipall' -name tcpdynamicports -value '' ; \
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql15.SQLEXPRESS\mssqlserver\supersocketnetlib\tcp\ipall' -name tcpport -value 1433 ; \
+    set-itemproperty -path 'HKLM:\software\microsoft\microsoft sql server\mssql15.SQLEXPRESS\mssqlserver\' -name LoginMode -value 2 ;
+
+CMD .\start -sa_password $env:sa_password -attach_dbs \"$env:attach_dbs\" -Verbose

@@ -1,0 +1,22 @@
+####################################################################################
+#
+#   file:           /docker/product-db/dockerfile
+#   author:         Patrick Gryzan
+#   date:           April 2021
+#   description:    Dockerfile for the SQL Server Express data used for the HashiCups application.
+#                   It inherits from the latest sqlserver-express container located in the same docker folder.
+#                   Default information is populated on startup from populate.sql.
+#
+####################################################################################
+
+FROM pgryzan/sqlserver-express:20210506
+LABEL author="Patrick Gryzan <pgryzan@hashicorp.io>"
+LABEL description="This is the database container for the HashiCups product-api"
+
+ENV sa_password Passw0rd!
+
+ADD populate.sql "c:\initdb.d"
+
+EXPOSE 1433
+
+CMD c:\start.ps1 -sa_password $env:sa_password -attach_dbs \"$env:attach_dbs\" -Verbose

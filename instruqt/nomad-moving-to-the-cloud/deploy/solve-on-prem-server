@@ -1,0 +1,15 @@
+#!/bin/bash -l
+
+set -e
+
+#Enable bash history
+HISTFILE=~/.bash_history
+set -o history
+
+cd /root/jobs
+
+nomad job run public-api.hcl
+sleep 5
+nomad job run frontend.hcl
+
+exit 0

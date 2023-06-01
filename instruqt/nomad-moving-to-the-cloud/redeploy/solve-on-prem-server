@@ -1,0 +1,15 @@
+#!/bin/bash -l
+
+set -e
+
+#Enable bash history
+HISTFILE=~/.bash_history
+set -o history
+
+cd /root/jobs
+
+nomad job run product-db.hcl
+sleep 10
+nomad job run legacy-app.hcl
+
+exit 0

@@ -1,0 +1,30 @@
+version: "2"
+virtualmachines:
+- name: cloud-server
+  image: instruqt-hashicorp/framework-server-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-2
+- name: on-prem-windows
+  image: instruqt-hashicorp/framework-windows-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-4
+- name: on-prem-podman
+  image: instruqt-hashicorp/framework-podman-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-2
+- name: cloud-docker
+  image: instruqt-hashicorp/framework-docker-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-2
+- name: cloud-podman
+  image: instruqt-hashicorp/framework-podman-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-2
+- name: on-prem-server
+  image: instruqt-hashicorp/framework-server-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-2
+- name: cloud-windows
+  image: instruqt-hashicorp/framework-windows-0-1-0
+  shell: /bin/bash -l
+  machine_type: n1-standard-4

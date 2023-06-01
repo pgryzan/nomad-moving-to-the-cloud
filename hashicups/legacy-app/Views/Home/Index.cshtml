@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "HashiCups";
+}
+
+<div class="jumbotron">
+    <h1>HashiCups</h1>
+    <p class="lead"><b>This is by far the coolest application that HashiCups has ever written!</b></p>
+    <p>Use the web pages to type in customer orders as they come in. No one would ever want a mobile application to do it themselves. Customer contact and personal service are king!</p>
+    <p>Below are the tables you can alter with customer orders. It's easy as pie!</p>
+</div>
+
+<div>
+    @Html.ActionLink("List of Coffees", "Index", "coffees")<br />
+    @Html.ActionLink("List of Ingredients", "Index", "ingredients")<br />
+    @Html.ActionLink("List of Coffee Ingredients", "Index", "coffee_ingredients")<br />
+    @Html.ActionLink("List of Orders", "Index", "orders")<br />
+    @Html.ActionLink("List of Order Items", "Index", "order_items")<br />
+    @Html.ActionLink("List of Users", "Index", "users")
+</div>

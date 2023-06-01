@@ -1,0 +1,21 @@
+#!/bin/bash -l
+
+set -e
+
+#Enable bash history
+HISTFILE=~/.bash_history
+set -o history
+
+cd /root/jobs
+
+nomad job run product-api.hcl
+
+nomad job run payment-api.hcl
+
+sleep 60
+
+nomad job status -region east payment-api
+
+curl -s -X POST --header "Content-Type: application/json" --data '{"name": "Gerry", "type": "mastercard", "number": "1234-1234-1234-1234", "expiry": "01/23", "cvc": "123"}' payment-api.service.consul:8080
+
+exit 0

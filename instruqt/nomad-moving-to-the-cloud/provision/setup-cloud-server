@@ -1,0 +1,63 @@
+#!/bin/bash -l
+
+set -e
+
+touch ~/.bash_profile
+
+# Set Variables
+REGION=west
+DATACENTER=cloud
+CONSUL=
+NOMAD=
+VAULT=
+
+# Set SSHPASS Password
+export SSHPASS=Passw0rd!
+echo -e "export SSHPASS=Passw0rd!" >> /root/.bashrc
+echo -e "export SSHPASS=Passw0rd!" >> ~/.bash_profile
+
+# Get Server IP
+export MY_IP=$(ip addr show ens4 | grep -Po 'inet \K[\d.]+')
+echo -e "export CLOUD_SERVER_IP=$MY_IP" >> /root/.bashrc
+echo -e "export CLOUD_SERVER_IP=$MY_IP" >> ~/.bash_profile
+
+# Configure the Server
+sudo chmod +x /home/hashistack/config.sh
+sudo /home/hashistack/config.sh -r "$REGION" -d "$DATACENTER" -c "$CONSUL" -n "$NOMAD" -v "$VAULT" -x 'cloud-server' -q '"10.64.0.254", "169.254.169.254", "8.8.8.8", "8.8.4.4"'
+sudo rm -r /home/hashistack/config.sh
+
+# Configure Docker Client
+ssh -o StrictHostKeyChecking=no cloud-docker << ENDSSH
+sudo chmod +x /home/hashistack/config.sh
+sudo /home/hashistack/config.sh -r "$REGION" -d "$DATACENTER" -j "$MY_IP" -x 'cloud-docker' -q '"10.64.0.254"' 
+sudo rm -r /home/hashistack/config.sh
+sudo systemctl restart systemd-resolved
+ENDSSH
+
+# Configure Podman Client
+ssh -o StrictHostKeyChecking=no cloud-podman << ENDSSH
+sudo chmod +x /home/hashistack/config.sh
+sudo /home/hashistack/config.sh -r "$REGION" -d "$DATACENTER" -j "$MY_IP" -x 'cloud-podman' -q '"10.64.0.254"'
+sudo rm -r /home/hashistack/config.sh
+ENDSSH
+
+# Get the Windows Client IP
+IFS=' ' read -r -a array <<< "$(gcloud compute instances list | grep p-$INSTRUQT_PARTICIPANT_ID-cloud-windows)"
+export CLOUD_WINDOWS_IP="${array[3]}"
+ssh-keyscan -H $CLOUD_WINDOWS_IP >> ~/.ssh/known_hosts
+echo -e "export ON_PREM_WINDOWS_IP=$CLOUD_WINDOWS_IP" >> /root/.bashrc
+echo -e "export ON_PREM_WINDOWS_IP=$CLOUD_WINDOWS_IP" >> ~/.bash_profile
+
+# Configure Windows Client
+sshpass -e ssh -o stricthostkeychecking=no hashistack@$CLOUD_WINDOWS_IP << ENDSSH
+powershell.exe -ExecutionPolicy Bypass
+c:/users/hashistack/config.ps1 -r "$REGION" -d "$DATACENTER" -j "$MY_IP" -x "cloud-windows" -q '"10.64.0.254"'
+rm c:/users/hashistack/config.ps1
+exit
+ENDSSH
+
+# sshpass -e ssh -o StrictHostKeyChecking=no hashistack@$CLOUD_WINDOWS_IP "powershell.exe -ExecutionPolicy Bypass -File c:/users/hashistack/config.ps1 -r \"$REGION\" -d \"$DATACENTER\" -j \"$MY_IP\" -x \"cloud-windows\" -q \"\\\"10.64.0.254\\\"\""
+
+echo -e "cd /root" >> ~/.bash_profile
+
+exit 0

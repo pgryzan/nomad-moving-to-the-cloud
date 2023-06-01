@@ -1,0 +1,13 @@
+#!/bin/bash -l
+
+set -e
+
+grep -q "nomad job run product-api.hcl" /root/.bash_history || fail-message "You haven't deployed the product-api yet."
+
+grep -q "nomad job run payment-api.hcl" /root/.bash_history || fail-message "You haven't deployed the payment-api yet."
+
+grep -q "nomad job status -region east payment-api" /root/.bash_history || fail-message "You haven't check the status of the payment-api yet."
+
+grep -q "curl -s -X POST --header \"Content-Type: application/json\"" /root/.bash_history || fail-message "You haven't confirmed that the payment-api is working yet."
+
+exit 0

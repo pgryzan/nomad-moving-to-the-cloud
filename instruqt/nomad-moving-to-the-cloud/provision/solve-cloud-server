@@ -1,0 +1,29 @@
+#!/bin/bash -l
+
+#Enable bash history
+HISTFILE=~/.bash_history
+set -o history
+
+# Wait up to 5 minutes for startup
+now=$(date +%s)
+start=$now
+end=$(($now + 300))
+while [ $now -le $end ]
+do
+    nomad_servers=$(nomad server members | grep alive | wc -l)
+    nomad_clients=$(nomad node status | grep ready | wc -l)
+    consul_members=$(consul members | grep alive | wc -l)
+    vault_seal_status=$(vault status | grep Sealed | grep false | wc -l)
+    echo "Cloud cluster starting for $(($now - $start)) seconds - Nomad Servers: ${nomad_servers}, Nomad Clients: ${nomad_clients}, Consul Members: ${consul_members}, Vault Seal Status: ${vault_seal_status}"
+    if [ "$nomad_servers" -eq "1" ] && [ "$nomad_clients" -eq "3" ] && [ "$consul_members" -eq "4" ] && [ "$vault_seal_status" -eq "1" ] ; then
+        break
+    fi
+    sleep 10
+    now=$(date +%s)
+done
+
+if [ $now -gt $end ] ; then
+    fail-message "Uh oh, looks like the cloud cluster did not start up correclty..." || exit 1
+fi
+
+exit 0

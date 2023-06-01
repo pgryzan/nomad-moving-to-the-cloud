@@ -1,0 +1,9 @@
+#!/bin/bash -l
+
+set -e
+
+grep -q "nomad job run public-api.hcl" /root/.bash_history || fail-message "You haven't deployed the public-api yet."
+
+grep -q "nomad job run frontend.hcl" /root/.bash_history || fail-message "You haven't deployed the HashiCups frontend yet."
+
+exit 0
